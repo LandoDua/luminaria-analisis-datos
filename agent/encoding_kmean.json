@@ -1,0 +1,270 @@
+{
+  "metadata": {
+    "proposito": "Codificación para K-means (análisis de clustering)",
+    "tipo_encoding": "ordinal",
+    "escalado_requerido": true,
+    "scaler": "StandardScaler"
+  },
+
+  "encoding_variables": {
+    "pregunta_1": {
+      "nombre_variable": "semestre",
+      "nombre_columna_original": "¿En qué semestre te encuentras actualmente?",
+      "nombre_columna_encoded": "semestre_ord",
+      "tipo_encoding": "ordinal",
+      "mapeo": {
+        "1°-3°": 1,
+        "4°-6°": 2,
+        "7° o más": 3
+      },
+      "descripcion_codigos": {
+        "1": "Estudiante de primer ciclo (1° a 3° semestre) - Recién ingresado",
+        "2": "Estudiante de ciclo intermedio (4° a 6° semestre) - En desarrollo",
+        "3": "Estudiante avanzado (7° semestre o más) - Próximo a egresar"
+      },
+      "interpretacion_kmeans": "Valores más altos indican estudiantes de semestres avanzados. Permite identificar si el riesgo varía por etapa académica.",
+      "rango": "[1, 3]",
+      "codigo_pandas": "df['semestre_ord'] = df['semestre'].map({'1°-3°': 1, '4°-6°': 2, '7° o más': 3})"
+    },
+
+    "pregunta_2": {
+      "nombre_variable": "desmotivacion",
+      "nombre_columna_original": "¿Te has sentido desmotivado(a) para continuar tus estudios en el ITD en los últimos 6 meses?",
+      "nombre_columna_encoded": "desmotivacion_bin",
+      "tipo_encoding": "binario",
+      "mapeo": {
+        "Sí": 1,
+        "No": 0
+      },
+      "descripcion_codigos": {
+        "0": "No presenta desmotivación - Estado emocional favorable",
+        "1": "Presenta desmotivación - INDICADOR DE RIESGO ALTO"
+      },
+      "interpretacion_kmeans": "Variable crítica. Valor 1 indica estudiante en riesgo emocional de deserción.",
+      "peso_riesgo": "ALTO",
+      "rango": "[0, 1]",
+      "codigo_pandas": "df['desmotivacion_bin'] = df['desmotivacion'].map({'Sí': 1, 'No': 0})"
+    },
+
+    "pregunta_3": {
+      "nombre_variable": "considerado_abandonar",
+      "nombre_columna_original": "¿Alguna vez has considerado abandonar la carrera?",
+      "nombre_columna_encoded": "considerado_abandonar_bin",
+      "tipo_encoding": "binario",
+      "mapeo": {
+        "Sí": 1,
+        "No": 0
+      },
+      "descripcion_codigos": {
+        "0": "Nunca ha considerado abandonar - Compromiso firme con la carrera",
+        "1": "Ha considerado abandonar - INDICADOR DE RIESGO CRÍTICO"
+      },
+      "interpretacion_kmeans": "Variable más crítica. Valor 1 indica estudiante que ya contempló deserción activamente.",
+      "peso_riesgo": "CRÍTICO",
+      "rango": "[0, 1]",
+      "codigo_pandas": "df['considerado_abandonar_bin'] = df['considerado_abandonar'].map({'Sí': 1, 'No': 0})"
+    },
+
+    "pregunta_4": {
+      "nombre_variable": "dificultades_economicas",
+      "nombre_columna_original": "¿Presentas dificultades económicas para cubrir tus gastos escolares?",
+      "nombre_columna_encoded": "dificultades_economicas_bin",
+      "tipo_encoding": "binario",
+      "mapeo": {
+        "Sí": 1,
+        "No": 0
+      },
+      "descripcion_codigos": {
+        "0": "No presenta dificultades económicas - Estabilidad financiera",
+        "1": "Presenta dificultades económicas - Factor de riesgo socioeconómico"
+      },
+      "interpretacion_kmeans": "Indicador socioeconómico. Valor 1 sugiere vulnerabilidad financiera que puede llevar a deserción.",
+      "peso_riesgo": "MEDIO-ALTO",
+      "rango": "[0, 1]",
+      "codigo_pandas": "df['dificultades_economicas_bin'] = df['dificultades_economicas'].map({'Sí': 1, 'No': 0})"
+    },
+
+    "pregunta_5": {
+      "nombre_variable": "empleo",
+      "nombre_columna_original": "¿Tienes un empleo además de estudiar?",
+      "nombre_columna_encoded": "empleo_ord",
+      "tipo_encoding": "ordinal",
+      "mapeo": {
+        "No": 0,
+        "Sí, medio tiempo": 1,
+        "Sí, tiempo completo": 2
+      },
+      "descripcion_codigos": {
+        "0": "No trabaja - Dedicación exclusiva a estudios",
+        "1": "Trabaja medio tiempo - Balance entre trabajo y estudio",
+        "2": "Trabaja tiempo completo - Alta carga laboral + académica"
+      },
+      "interpretacion_kmeans": "Indica nivel de carga laboral. Valores altos pueden correlacionar con mayor estrés y menor rendimiento.",
+      "peso_riesgo": "MEDIO (depende de pregunta 6)",
+      "rango": "[0, 2]",
+      "codigo_pandas": "df['empleo_ord'] = df['empleo'].map({'No': 0, 'Sí, medio tiempo': 1, 'Sí, tiempo completo': 2})"
+    },
+
+    "pregunta_6": {
+      "nombre_variable": "impacto_laboral",
+      "nombre_columna_original": "¿Consideras que tus responsabilidades laborales afectan tu rendimiento académico?",
+      "nombre_columna_encoded": "impacto_laboral_ord",
+      "tipo_encoding": "ordinal",
+      "mapeo": {
+        "No afecta / No trabajo": 0,
+        "Algo": 1,
+        "Sí, mucho": 2
+      },
+      "descripcion_codigos": {
+        "0": "No hay impacto laboral - Rendimiento académico no comprometido",
+        "1": "Impacto moderado - Alguna interferencia trabajo-estudio",
+        "2": "Impacto severo - Trabajo afecta significativamente el rendimiento"
+      },
+      "interpretacion_kmeans": "Mide percepción de conflicto trabajo-estudio. Valor 2 indica riesgo alto de bajo rendimiento.",
+      "peso_riesgo": "ALTO (si valor = 2)",
+      "rango": "[0, 2]",
+      "codigo_pandas": "df['impacto_laboral_ord'] = df['impacto_laboral'].map({'No afecta / No trabajo': 0, 'Algo': 1, 'Sí, mucho': 2})"
+    },
+
+    "pregunta_7": {
+      "nombre_variable": "reprobo_materias",
+      "nombre_columna_original": "¿Has reprobado alguna materia en el último semestre escolar?",
+      "nombre_columna_encoded": "reprobo_materias_bin",
+      "tipo_encoding": "binario",
+      "mapeo": {
+        "Sí": 1,
+        "No": 0
+      },
+      "descripcion_codigos": {
+        "0": "No reprobó materias - Buen rendimiento académico",
+        "1": "Reprobó al menos una materia - INDICADOR DE RIESGO ACADÉMICO"
+      },
+      "interpretacion_kmeans": "Indicador directo de bajo rendimiento. Valor 1 señala problemas académicos recientes.",
+      "peso_riesgo": "ALTO",
+      "rango": "[0, 1]",
+      "codigo_pandas": "df['reprobo_materias_bin'] = df['reprobo_materias'].map({'Sí': 1, 'No': 0})"
+    },
+
+    "pregunta_8": {
+      "nombre_variable": "apoyo_institucional",
+      "nombre_columna_original": "¿Te sientes apoyado/a por el personal docente y administrativo del ITD?",
+      "nombre_columna_encoded": "apoyo_institucional_ord",
+      "tipo_encoding": "ordinal",
+      "mapeo": {
+        "Nunca": 0,
+        "Algunas veces": 1,
+        "Siempre": 2
+      },
+      "descripcion_codigos": {
+        "0": "Nunca se siente apoyado - Desconexión total con institución",
+        "1": "Apoyo intermitente - Conexión institucional moderada",
+        "2": "Siempre se siente apoyado - Fuerte vínculo institucional"
+      },
+      "interpretacion_kmeans": "Mide sentido de pertenencia. Valores bajos indican riesgo de deserción por aislamiento.",
+      "peso_riesgo": "MEDIO (valores bajos son preocupantes)",
+      "rango": "[0, 2]",
+      "direccion": "INVERSA: valores bajos = mayor riesgo",
+      "codigo_pandas": "df['apoyo_institucional_ord'] = df['apoyo_institucional'].map({'Nunca': 0, 'Algunas veces': 1, 'Siempre': 2})"
+    },
+
+    "pregunta_9": {
+      "nombre_variable": "satisfaccion_servicios",
+      "nombre_columna_original": "¿Cómo calificarías tu satisfacción con los servicios del ITD?",
+      "nombre_columna_encoded": "satisfaccion_servicios_ord",
+      "tipo_encoding": "ordinal",
+      "mapeo": {
+        "Muy insatisfecho/a": 0,
+        "Insatisfecho/a": 1,
+        "Satisfecho/a": 2,
+        "Muy satisfecho/a": 3
+      },
+      "descripcion_codigos": {
+        "0": "Muy insatisfecho - Percepción muy negativa de servicios institucionales",
+        "1": "Insatisfecho - Percepción negativa de servicios",
+        "2": "Satisfecho - Percepción positiva de servicios",
+        "3": "Muy satisfecho - Percepción muy positiva de servicios"
+      },
+      "interpretacion_kmeans": "Mide calidad percibida de servicios. Valores bajos correlacionan con intención de abandono.",
+      "peso_riesgo": "MEDIO (valores 0-1 son señales de alerta)",
+      "rango": "[0, 3]",
+      "direccion": "INVERSA: valores bajos = mayor riesgo",
+      "codigo_pandas": "df['satisfaccion_servicios_ord'] = df['satisfaccion_servicios'].map({'Muy insatisfecho/a': 0, 'Insatisfecho/a': 1, 'Satisfecho/a': 2, 'Muy satisfecho/a': 3})"
+    },
+
+    "pregunta_10": {
+      "nombre_variable": "actividades_extracurriculares",
+      "nombre_columna_original": "¿Participas en actividades extracurriculares (deporte, cultura, talleres) dentro del ITD?",
+      "nombre_columna_encoded": "actividades_extracurriculares_ord",
+      "tipo_encoding": "ordinal",
+      "mapeo": {
+        "Nunca": 0,
+        "Algunas veces": 1,
+        "Sí, frecuentemente": 2
+      },
+      "descripcion_codigos": {
+        "0": "Nunca participa - No integración en vida universitaria",
+        "1": "Participación ocasional - Integración moderada",
+        "2": "Participación frecuente - Fuerte integración social"
+      },
+      "interpretacion_kmeans": "Mide integración social. Valores bajos indican desconexión con comunidad universitaria.",
+      "peso_riesgo": "MEDIO-BAJO (pero importante para retención)",
+      "rango": "[0, 2]",
+      "direccion": "INVERSA: valores bajos = mayor riesgo de aislamiento",
+      "codigo_pandas": "df['actividades_extracurriculares_ord'] = df['actividades_extracurriculares'].map({'Nunca': 0, 'Algunas veces': 1, 'Sí, frecuentemente': 2})"
+    }
+  },
+
+  "lista_variables_ordenadas": [
+    "semestre_ord",
+    "desmotivacion_bin",
+    "considerado_abandonar_bin",
+    "dificultades_economicas_bin",
+    "empleo_ord",
+    "impacto_laboral_ord",
+    "reprobo_materias_bin",
+    "apoyo_institucional_ord",
+    "satisfaccion_servicios_ord",
+    "actividades_extracurriculares_ord"
+  ],
+
+  "interpretacion_clusters_esperada": {
+    "cluster_alto_riesgo": {
+      "perfil": "Estudiantes en riesgo crítico de deserción",
+      "caracteristicas_esperadas": {
+        "desmotivacion_bin": "≈ 1 (presente)",
+        "considerado_abandonar_bin": "≈ 1 (presente)",
+        "dificultades_economicas_bin": "≈ 1 (presente)",
+        "reprobo_materias_bin": "≈ 1 (presente)",
+        "apoyo_institucional_ord": "≈ 0-1 (bajo)",
+        "satisfaccion_servicios_ord": "≈ 0-1 (baja)",
+        "actividades_extracurriculares_ord": "≈ 0 (nula)"
+      },
+      "accion_recomendada": "Intervención urgente - tutorías, apoyo psicológico, becas"
+    },
+    "cluster_riesgo_medio": {
+      "perfil": "Estudiantes con algunos factores de riesgo",
+      "caracteristicas_esperadas": {
+        "desmotivacion_bin": "≈ 0.3-0.5 (mixto)",
+        "empleo_ord": "≈ 1-2 (trabajan)",
+        "impacto_laboral_ord": "≈ 1 (impacto moderado)",
+        "apoyo_institucional_ord": "≈ 1 (moderado)",
+        "satisfaccion_servicios_ord": "≈ 1-2 (aceptable)"
+      },
+      "accion_recomendada": "Monitoreo preventivo - flexibilidad horaria, seguimiento académico"
+    },
+    "cluster_bajo_riesgo": {
+      "perfil": "Estudiantes estables sin indicadores de riesgo",
+      "caracteristicas_esperadas": {
+        "desmotivacion_bin": "≈ 0 (ausente)",
+        "considerado_abandonar_bin": "≈ 0 (ausente)",
+        "reprobo_materias_bin": "≈ 0 (ausente)",
+        "apoyo_institucional_ord": "≈ 2 (alto)",
+        "satisfaccion_servicios_ord": "≈ 2-3 (alta)",
+        "actividades_extracurriculares_ord": "≈ 1-2 (participa)"
+      },
+      "accion_recomendada": "Mantenimiento - continuar con apoyo regular"
+    }
+  },
+
+  "codigo_implementacion_completo": "import pandas as pd\nfrom sklearn.preprocessing import StandardScaler\nfrom sklearn.cluster import KMeans\nimport numpy as np\n\n# Mapeos de encoding\nmapeos = {\n    'semestre': {'1°-3°': 1, '4°-6°': 2, '7° o más': 3},\n    'desmotivacion': {'Sí': 1, 'No': 0},\n    'considerado_abandonar': {'Sí': 1, 'No': 0},\n    'dificultades_economicas': {'Sí': 1, 'No': 0},\n    'empleo': {'No': 0, 'Sí, medio tiempo': 1, 'Sí, tiempo completo': 2},\n    'impacto_laboral': {'No afecta / No trabajo': 0, 'Algo': 1, 'Sí, mucho': 2},\n    'reprobo_materias': {'Sí': 1, 'No': 0},\n    'apoyo_institucional': {'Nunca': 0, 'Algunas veces': 1, 'Siempre': 2},\n    'satisfaccion_servicios': {'Muy insatisfecho/a': 0, 'Insatisfecho/a': 1, 'Satisfecho/a': 2, 'Muy satisfecho/a': 3},\n    'actividades_extracurriculares': {'Nunca': 0, 'Algunas veces': 1, 'Sí, frecuentemente': 2}\n}\n\n# Aplicar encoding\nfor col, mapeo in mapeos.items():\n    if col in df.columns:\n        df[f'{col}_ord' if col not in ['desmotivacion', 'considerado_abandonar', 'dificultades_economicas', 'reprobo_materias'] else f'{col}_bin'] = df[col].map(mapeo)\n\n# Features para K-means\nfeatures_kmeans = [\n    'semestre_ord', 'desmotivacion_bin', 'considerado_abandonar_bin',\n    'dificultades_economicas_bin', 'empleo_ord', 'impacto_laboral_ord',\n    'reprobo_materias_bin', 'apoyo_institucional_ord', \n    'satisfaccion_servicios_ord', 'actividades_extracurriculares_ord'\n]\n\nX_kmeans = df[features_kmeans].copy()\n\n# Verificar valores nulos\nprint('Valores nulos por columna:')\nprint(X_kmeans.isnull().sum())\n\n# Escalar\nscaler = StandardScaler()\nX_scaled = scaler.fit_transform(X_kmeans)\n\nprint(f'\\nShape de datos escalados: {X_scaled.shape}')\nprint(f'Media después de escalar: {X_scaled.mean(axis=0).round(3)}')\nprint(f'Std después de escalar: {X_scaled.std(axis=0).round(3)}')"
+}
