@@ -1,0 +1,186 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luminaria - Cuestionario</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+</head>
+
+<body>
+    <div class="container">
+        <form method="post" id="wizardForm" class="card-wizard">
+            {% csrf_token %}
+
+            <div class="wizard-header">
+                <h2>Cuestionario de Riesgo</h2>
+            </div>
+
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progressBar"></div>
+            </div>
+
+            <!-- Steps Container -->
+            <!-- Iteramos sobre los campos del formulario manualmente o con loop -->
+            {% for field in form %}
+            <div class="question-step {% if forloop.first %}active{% endif %}" data-step="{{ forloop.counter }}">
+                <div class="question-title">{{ field.label }}</div>
+
+                <div class="form-options">
+                    {% for widget in field %}
+                    <label class="radio-option" onclick="selectOption(this)">
+                        {{ widget.tag }}
+                        {{ widget.choice_label }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <div class="wizard-footer">
+                <button type="button" class="btn btn-prev" id="prevBtn" onclick="prevStep()">Anterior</button>
+                <button type="button" class="btn btn-next" id="nextBtn" onclick="nextStep()" disabled>Siguiente</button>
+                <button type="submit" class="btn btn-submit" id="submitBtn" style="display: none;">Enviar</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        // Django template variable for total steps
+        const totalSteps = {{ form.visible_fields| length }};
+
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log("Wizard initialized. Total steps:", totalSteps);
+            updateUI();
+
+            // Add change listeners to all radio inputs for better reliability
+            const form = document.getElementById('wizardForm');
+            form.addEventListener('change', function (e) {
+                console.log("Change event detected on:", e.target);
+                if (e.target.type === 'radio') {
+                    // Update visual selection
+                    const allOptions = document.querySelectorAll('.radio-option');
+                    allOptions.forEach(opt => opt.classList.remove('selected'));
+
+                    if (e.target.closest('.radio-option')) {
+                        e.target.closest('.radio-option').classList.add('selected');
+                    }
+
+                    // Enable next button
+                    checkSelection();
+                }
+            });
+        });
+
+        function updateUI() {
+            // Update Progress
+            const progress = ((currentStep - 1) / totalSteps) * 100;
+            const bar = document.getElementById('progressBar');
+            if (bar) bar.style.width = progress + '%';
+
+            // Buttons visibility
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (prevBtn) prevBtn.style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+
+            if (currentStep === totalSteps) {
+                if (nextBtn) nextBtn.style.display = 'none';
+                if (submitBtn) submitBtn.style.display = 'block';
+                checkSelection(); // Check if last step is ready
+            } else {
+                if (nextBtn) nextBtn.style.display = 'block';
+                if (submitBtn) submitBtn.style.display = 'none';
+                checkSelection();
+            }
+        }
+
+        function checkSelection() {
+            const currentStepEl = document.querySelector(`.question-step[data-step="${currentStep}"]`);
+            if (!currentStepEl) return;
+
+            const selected = currentStepEl.querySelector('input[type="radio"]:checked');
+
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (selected) {
+                if (nextBtn) {
+                    nextBtn.disabled = false;
+                    nextBtn.style.opacity = "1";
+                    nextBtn.style.cursor = "pointer";
+                }
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = "1";
+                    submitBtn.style.cursor = "pointer";
+                }
+            } else {
+                if (nextBtn) {
+                    nextBtn.disabled = true;
+                    nextBtn.style.opacity = "0.5";
+                    nextBtn.style.cursor = "not-allowed";
+                }
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.style.opacity = "0.5";
+                    submitBtn.style.cursor = "not-allowed";
+                }
+            }
+        }
+
+        function nextStep() {
+            if (currentStep >= totalSteps) return;
+
+            const currentEl = document.querySelector(`.question-step[data-step="${currentStep}"]`);
+            const nextEl = document.querySelector(`.question-step[data-step="${currentStep + 1}"]`);
+
+            if (currentEl) {
+                currentEl.classList.add('slide-out-left');
+                currentEl.classList.remove('active');
+            }
+
+            if (nextEl) {
+                nextEl.classList.add('active');
+                nextEl.classList.remove('slide-out-right');
+            }
+
+            currentStep++;
+            updateUI();
+        }
+
+        function prevStep() {
+            if (currentStep <= 1) return;
+
+            const currentEl = document.querySelector(`.question-step[data-step="${currentStep}"]`);
+            const prevEl = document.querySelector(`.question-step[data-step="${currentStep - 1}"]`);
+
+            if (currentEl) {
+                currentEl.classList.remove('active');
+                currentEl.classList.add('slide-out-right');
+            }
+
+            if (prevEl) {
+                prevEl.classList.add('active');
+                prevEl.classList.remove('slide-out-left');
+            }
+
+            currentStep--;
+            updateUI();
+
+            // Clean up animation classes
+            setTimeout(() => {
+                if (currentEl) {
+                    currentEl.classList.remove('slide-out-right');
+                    currentEl.classList.remove('slide-out-left');
+                }
+            }, 400);
+        }
+    </script>
+</body>
+
+</html>

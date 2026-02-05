@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Luminaria</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+    <div class="result-card">
+        <h1 style="color: var(--danger-red);">Ocurrió un error</h1>
+        <p>Hubo un problema procesando tu solicitud.</p>
+
+        <div
+            style="background-color: #fee; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: left; overflow: auto;">
+            <code style="color: #c00;">{{ error }}</code>
+        </div>
+
+        <a href="{% url 'index' %}" class="btn btn-next" style="text-decoration: none; display: inline-block;">Volver a
+            intentar</a>
+    </div>
+</body>
+
+</html>

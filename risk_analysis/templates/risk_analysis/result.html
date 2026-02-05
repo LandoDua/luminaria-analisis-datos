@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado - Luminaria</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="result-card">
+        <h1>Análisis Completado</h1>
+        <p>Basado en tus respuestas, hemos calculado tu nivel de riesgo de deserción:</p>
+        
+        <div class="result-badge {% if 'Alto' in result %}result-high{% elif 'Medio' in result %}result-medium{% else %}result-low{% endif %}">
+            {{ result }}
+        </div>
+        
+        <p>
+            {% if 'Alto' in result %}
+                Hemos identificado varios factores que podrían dificultar tu trayectoria académica (abandono, reprobación).
+                <br><strong>Recomendación:</strong> Te sugerimos acercarte al departamento de tutorías o psicología del ITD.
+            {% elif 'Medio' in result %}
+                Existen algunos factores de atención. No descuides tu rendimiento y busca apoyo si lo necesitas.
+            {% else %}
+                ¡Excelente! Tu perfil indica estabilidad. Sigue manteniendo ese buen ritmo.
+            {% endif %}
+        </p>
+        
+        <a href="{% url 'index' %}" class="btn btn-next" style="text-decoration: none; display: inline-block; margin-top: 20px;">Volver a intentar</a>
+    </div>
+</body>
+</html>
