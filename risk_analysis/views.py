@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect
 from .forms import QuestionnaireForm
 from .services import RiskPredictor
 
+def landing(request):
+    return render(request, 'risk_analysis/landing.html')
+
 def index(request):
     if request.method == 'POST':
         form = QuestionnaireForm(request.POST)

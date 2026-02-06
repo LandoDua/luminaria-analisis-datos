@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luminaria - Prevención y Análisis</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=5">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Outfit:wght@300;400;600;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="landing-body">
+    <div class="landing-bg-overlay"></div>
+    <div class="landing-container">
+        <header class="landing-header">
+            <div class="logo-area">
+                <h1>Luminaria</h1>
+                <span class="badge">BETA</span>
+            </div>
+            <p class="subtitle">Análisis Inteligente de Riesgo Estudiantil</p>
+        </header>
+
+        <main class="landing-content">
+            <div class="hero-text">
+                <h2>A veces solo necesitamos saberlo para actuar.</h2>
+                <p>
+                    Luminaria es una iniciativa nacida en el <strong>Departamento de Sistemas y Computación del
+                        ITD</strong>
+                    con un objetivo claro: <strong class="highlight-text">identificar y prevenir la deserción
+                        escolar</strong> antes de que suceda.
+                </p>
+                <p>
+                    A través del análisis de datos y <strong class="highlight-text">modelos de Inteligencia
+                        Artificial</strong>, evaluamos factores clave
+                    para brindarte un panorama claro sobre tu trayectoria académica.
+                </p>
+            </div>
+
+            <div class="action-area">
+                <a href="{% url 'questionnaire' %}" class="btn-start-test">
+                    <div class="fire-particles">
+                        <span></span><span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                    <span class="btn-icon">➜</span>
+                    <span class="btn-text">Iniciar Diagnóstico</span>
+                </a>
+                <p class="disclaimer">Tus datos son procesados de forma anónima para fines estadísticos.</p>
+            </div>
+        </main>
+
+        <footer class="landing-footer">
+            <p>© 2026 Instituto Tecnológico de Durango - Proyecto Luminaria</p>
+        </footer>
+    </div>
+</body>
+
+</html>
