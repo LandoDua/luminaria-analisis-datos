@@ -9,19 +9,14 @@ def index(request):
     if request.method == 'POST':
         form = QuestionnaireForm(request.POST)
         if form.is_valid():
-            # Extraer datos limpios
             data = form.cleaned_data
-            
             try:
-                # Instanciar servicio y predecir
                 predictor = RiskPredictor()
                 result = predictor.predict(data)
                 
-                # Mapear resultado a texto legible si es necesario
-                # Asumiendo que result es el string de la clase (e.g. 'Alto Riesgo', 'Bajo Riesgo')
-                # Si el modelo devuelve números, habría que mapear aquí.
-                
-                return render(request, 'risk_analysis/result.html', {'result': result})
+                # PRG Pattern: Store result in session and redirect
+                request.session['risk_result'] = result
+                return redirect('result')
             except Exception as e:
                 # En producción manejaríamos esto mejor
                 return render(request, 'risk_analysis/error.html', {'error': str(e)})
@@ -29,3 +24,19 @@ def index(request):
         form = QuestionnaireForm()
 
     return render(request, 'risk_analysis/index.html', {'form': form})
+
+def result(request):
+    """
+    Vista para mostrar el resultado recuperándolo de la sesión.
+    Evita el reenvío del formulario al refrescar.
+    """
+    result = request.session.get('risk_result')
+    
+    if not result:
+        # Si no hay resultado en sesión, redirigir al cuestionario
+        return redirect('questionnaire')
+        
+    # Opcional: Limpiar la sesión si queremos que el resultado sea efímero
+    # del request.session['risk_result'] 
+    
+    return render(request, 'risk_analysis/result.html', {'result': result})

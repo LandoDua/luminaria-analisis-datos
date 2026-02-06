@@ -6,10 +6,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luminaria - Cuestionario</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=3">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=6">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Outfit:wght@300;400;600;800&display=swap"
+        rel="stylesheet">
 </head>
 
-<body>
+<body class="landing-body">
+    <div class="landing-bg-overlay"></div>
     <div class="container">
         <form method="post" id="wizardForm" class="card-wizard">
             {% csrf_token %}
@@ -17,6 +23,28 @@
             <div class="wizard-header">
                 <h2>Cuestionario de Riesgo</h2>
             </div>
+
+            {% if form.errors %}
+            <div class="alert-box"
+                style="background: #FEE2E2; color: #DC2626; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 0.9rem; border: 1px solid #FECACA;">
+                <strong>Por favor corrige los siguientes errores:</strong>
+                <ul style="margin: 5px 0 0 20px; padding: 0;">
+                    {% for field in form %}
+                    {% for error in field.errors %}
+                    <li>{{ field.label }}: {{ error }}</li>
+                    {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <a href="{% url 'landing' %}" class="logo-small"
+                style="position: absolute; top: 25px; right: 25px; font-family: 'Outfit'; font-weight: 800; font-size: 0.8rem; color: var(--accent-orange); opacity: 0.8; text-decoration: none; cursor: pointer;">
+                LUMINARIA
+            </a>
 
             <div class="progress-bar-container">
                 <div class="progress-bar-fill" id="progressBar"></div>
@@ -41,16 +69,38 @@
 
             <div class="wizard-footer">
                 <button type="button" class="btn btn-prev" id="prevBtn" onclick="prevStep()">Anterior</button>
-                <button type="button" class="btn btn-next" id="nextBtn" onclick="nextStep()" disabled>Siguiente</button>
+                <button type="button" class="btn btn-next" id="nextBtn" onclick="nextStep()" disabled>
+                    Siguiente <span class="btn-icon-nav">→</span>
+                </button>
                 <button type="submit" class="btn btn-submit" id="submitBtn" style="display: none;">Enviar</button>
             </div>
         </form>
     </div>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 1000; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+        <div class="spinner"
+            style="border: 4px solid #f3f3f3; border-top: 4px solid var(--accent-orange); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 20px;">
+        </div>
+        <h3 style="font-family: 'Outfit'; color: var(--text-brown);">Analizando respuestas...</h3>
+        <p style="color: var(--text-brown-light);">Por favor espera un momento</p>
+    </div>
 
+    <style>
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
     <script>
         let currentStep = 1;
         // Django template variable for total steps
-        const totalSteps = {{ form.visible_fields| length }};
+        const totalSteps = parseInt("{{ form.visible_fields|length }}");
 
         document.addEventListener('DOMContentLoaded', function () {
             console.log("Wizard initialized. Total steps:", totalSteps);
@@ -58,6 +108,12 @@
 
             // Add change listeners to all radio inputs for better reliability
             const form = document.getElementById('wizardForm');
+
+            // Show loading on submit
+            form.addEventListener('submit', function () {
+                document.getElementById('loadingOverlay').style.display = 'flex';
+            });
+
             form.addEventListener('change', function (e) {
                 console.log("Change event detected on:", e.target);
                 if (e.target.type === 'radio') {

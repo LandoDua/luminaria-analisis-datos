@@ -4,6 +4,14 @@
     --primary-yellow-light: #FFFAE5;
     --primary-yellow-dark: #B7791F;
 
+    /* Risk Colors */
+    --risk-low: #10B981;
+    --risk-low-bg: #ECFDF5;
+    --risk-medium: #F59E0B;
+    --risk-medium-bg: #FFFBEB;
+    --risk-high: #EF4444;
+    --risk-high-bg: #FEF2F2;
+
     /* Updated Background Gradients */
     --bg-center: #FFFBF2;
     --bg-edge: #F7E9D1;
@@ -12,10 +20,20 @@
 
     --text-brown: #78350F;
     --text-brown-light: #92400E;
+    --text-dark-grey: #2D2D2D;
 
     --accent-orange: #F59E0B;
     --card-shadow: 0 20px 25px -5px rgba(120, 53, 15, 0.1), 0 10px 10px -5px rgba(120, 53, 15, 0.04);
     --transition-speed: 0.5s;
+}
+
+/* Glassmorphism Utility */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
 }
 
 body {
@@ -461,6 +479,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    text-decoration: none;
 }
 
 .btn:active {
@@ -509,65 +528,306 @@ body {
     transform: translateY(-1px);
 }
 
+/* Result Screen Specifics */
+/* Home Button on Result Card */
+.home-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-brown);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(120, 53, 15, 0.1);
+    z-index: 10;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.home-button:hover {
+    background: white;
+    transform: scale(1.1);
+    color: var(--accent-orange);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 .result-card {
     text-align: center;
-    background: white;
-    padding: 60px;
+    background: var(--bg-white);
+    padding: 0;
+    /* Content padding handled by inner containers */
     border-radius: 24px;
     box-shadow: var(--card-shadow);
-    max-width: 500px;
+    max-width: 550px;
+    width: 90%;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(120, 53, 15, 0.08);
 }
 
-.result-badge {
-    font-size: 2.2rem;
+.result-hero {
+    padding: 40px 30px;
+    position: relative;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: background-color 0.5s ease;
+}
+
+.result-hero.risk-low {
+    background: linear-gradient(135deg, var(--risk-low-bg) 0%, #ffffff 100%);
+}
+
+.result-hero.risk-medium {
+    background: linear-gradient(135deg, var(--risk-medium-bg) 0%, #ffffff 100%);
+}
+
+.result-hero.risk-high {
+    background: linear-gradient(135deg, var(--risk-high-bg) 0%, #ffffff 100%);
+}
+
+.risk-label {
+    margin-top: 20px;
+    font-size: 2.5rem;
     font-weight: 800;
-    padding: 24px 40px;
-    border-radius: 20px;
-    margin: 30px 0;
-    display: inline-block;
-    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: -1px;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
 }
 
-@keyframes popIn {
-    0% {
-        transform: scale(0.8);
-        opacity: 0;
-    }
-
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
+.risk-low .risk-label {
+    color: var(--risk-low);
 }
 
-@keyframes fadeIn {
+.risk-medium .risk-label {
+    color: var(--risk-medium);
+}
+
+.risk-high .risk-label {
+    color: var(--risk-high);
+}
+
+/* Gauge / Speedometer */
+.gauge-container {
+    width: 220px;
+    height: 110px;
+    /* Half circle */
+    position: relative;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.gauge-bg {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: #E5E7EB;
+    position: absolute;
+    top: 0;
+    left: 0;
+    /* Mask to create arc */
+    mask-image: linear-gradient(to bottom, black 50%, transparent 50%);
+    -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 50%);
+}
+
+.gauge-fill {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: center center;
+    transform: rotate(0deg);
+    /* Initial state */
+    transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* Spring effect */
+    mask-image: linear-gradient(to bottom, black 50%, transparent 50%);
+    -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 50%);
+}
+
+.risk-low .gauge-fill {
+    background: var(--risk-low);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+.risk-medium .gauge-fill {
+    background: var(--risk-medium);
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+}
+
+.risk-high .gauge-fill {
+    background: var(--risk-high);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
+.gauge-cover {
+    width: 180px;
+    height: 180px;
+    background: var(--bg-white);
+    /* Matches card bg inside hero? No, usually Hero bg. Adjust dynamically or use white for contrast */
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 2;
+}
+
+/* Needle / Indicator (optional if using fill rotation, but fill is easier for CSS-only simple gauges) 
+   We will strictly follow the "Dynamic Fill" approach for simplicity or use a needle if preferred.
+   Let's stick to a rotating fill that reveals color. Actually, for a pure CSS gauge, rotating a semi-circle is tricky.
+   Simpler approach: Rotate a needle. 
+*/
+
+/* Revised Gauge: Hollow Arc with Needle */
+.gauge-chart {
+    width: 200px;
+    height: 100px;
+    position: relative;
+    margin: 0 auto;
+    border-top-left-radius: 200px;
+    border-top-right-radius: 200px;
+    background: #E5E7EB;
+    overflow: hidden;
+}
+
+.gauge-value {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-top-left-radius: 200px;
+    border-top-right-radius: 200px;
+    transform-origin: center top;
+    transform: rotate(0turn);
+    /* 0turn = -90deg visually if we start flat? CSS transforms are better with deg. */
+    transform: rotate(-180deg);
+    /* Hidden start */
+    transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* The actual colored part should be "revealed". 
+   Let's try a Standard CSS SVG approach in HTML for perfect control, 
+   but here are the animations.
+*/
+
+/* Needle Style */
+.gauge-needle {
+    width: 4px;
+    height: 90px;
+    background: var(--text-dark-grey);
+    position: absolute;
+    bottom: 0px;
+    left: 50%;
+    transform-origin: bottom center;
+    transform: translateX(-50%) rotate(-90deg);
+    /* Start at 0 */
+    transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 5;
+    border-radius: 4px;
+}
+
+.gauge-needle::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.gauge-base {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 20px;
+    background: var(--text-dark-grey);
+    border-radius: 50%;
+    z-index: 6;
+}
+
+.result-body {
+    padding: 30px 40px;
+    text-align: left;
+}
+
+.result-message-title {
+    font-size: 1.2rem;
+    font-family: 'Merriweather', serif;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: var(--text-brown);
+}
+
+.result-message-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-dark-grey);
+    margin-bottom: 30px;
+}
+
+.result-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 2px solid var(--text-brown-light);
+    color: var(--text-brown-light);
+    padding: 10px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.btn-secondary:hover {
+    background: var(--bg-edge);
+    transform: translateY(-1px);
+}
+
+.result-footer {
+    margin-top: 30px;
+    font-size: 0.8rem;
+    color: #9CA3AF;
+    padding-top: 20px;
+    border-top: 1px solid #F3F4F6;
+    text-align: center;
+}
+
+.result-footer a {
+    color: var(--accent-orange);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+@keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translate3d(0, 20px, 0);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translate3d(0, 0, 0);
     }
-}
-
-.result-high {
-    background-color: #FEF2F2;
-    color: #EF4444;
-    border: 2px solid #FEE2E2;
-}
-
-.result-medium {
-    background-color: #FFFBEB;
-    color: #F59E0B;
-    border: 2px solid #FEF3C7;
-}
-
-.result-low {
-    background-color: #ECFDF5;
-    color: #10B981;
-    border: 2px solid #D1FAE5;
 }
 
 /* Mobile Responsiveness */
@@ -580,63 +840,38 @@ body {
         font-size: 3rem;
     }
 
-    .landing-header {
-        margin-bottom: 2rem;
-    }
-
     .hero-text h2 {
         font-size: 1.8rem;
-        line-height: 1.3;
-    }
-
-    .hero-text p {
-        width: 90%;
-        margin: 0 auto 15px auto;
-        font-size: 1rem;
-    }
-
-    /* Proportional Button sizing for mobile thumb interaction */
-    .btn-start-test {
-        width: 180px;
-        height: 180px;
-    }
-
-    .card-wizard {
-        padding: 25px 20px;
-        min-height: 500px;
-        border-radius: 20px;
-    }
-
-    .wizard-header h2 {
-        font-size: 1.5rem;
-        margin-bottom: 20px;
-    }
-
-    .question-title {
-        font-size: 1.2rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .radio-option {
-        padding: 14px 16px;
-        font-size: 0.95rem;
-    }
-
-    .wizard-footer {
-        padding-top: 20px;
-    }
-
-    .btn {
-        padding: 12px 20px;
-        font-size: 0.95rem;
     }
 
     .result-card {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 20px;
+    }
+
+    .result-hero {
         padding: 30px 20px;
     }
 
-    .result-badge {
-        font-size: 1.5rem;
-        padding: 15px 25px;
+    .risk-label {
+        font-size: 2rem;
+    }
+
+    .result-body {
+        padding: 25px 20px;
+    }
+
+    .result-actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .btn,
+    .btn-secondary {
+        width: 100%;
+        justify-content: center;
+        box-sizing: border-box;
+        /* Ensure padding doesn't overflow width */
     }
 }

@@ -6,33 +6,133 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resultado - Luminaria</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Outfit:wght@300;400;600;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 
-<body>
-    <div class="result-card">
-        <h1>Análisis Completado</h1>
-        <p>Basado en tus respuestas, hemos calculado tu nivel de riesgo de deserción:</p>
+<body class="landing-body">
+    <div class="landing-bg-overlay"></div>
+    <div class="container">
 
-        <div
-            class="result-badge {% if 'Alto' in result %}result-high{% elif 'Medio' in result %}result-medium{% else %}result-low{% endif %}">
-            {{ result }}
+        <!-- Logic to determine Class and Risk Level is handled in the data-risk attribute below -->
+
+        <div class="result-card" id="resultCard"
+            data-risk="{% if 'Alto' in result %}high{% elif 'Medio' in result %}medium{% else %}low{% endif %}">
+
+            <!-- Home Button -->
+            <a href="{% url 'landing' %}" class="home-button" title="Ir al Inicio">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </a>
+
+            <div
+                class="result-hero {% if 'Alto' in result %}risk-high{% elif 'Medio' in result %}risk-medium{% else %}risk-low{% endif %}">
+
+                <div class="gauge-container">
+                    <div class="gauge-chart">
+                        <!-- The value rotation will be set by JS -->
+                        <div class="gauge-needle" id="gaugeNeedle"></div>
+                        <div class="gauge-base"></div>
+                    </div>
+                </div>
+
+                <div class="risk-label">
+                    {{ result }}
+                </div>
+            </div>
+
+            <div class="result-body">
+                {% if 'Alto' in result %}
+                <div class="result-message-title">Atención Requerida</div>
+                <p class="result-message-text">
+                    Hemos identificado factores clave que podrían dificultar tu trayectoria académica, como riesgos de
+                    reprobación.
+                    No estás solo en esto; el ITD tiene recursos para apoyarte.
+                </p>
+                {% elif 'Medio' in result %}
+                <div class="result-message-title">Precaución</div>
+                <p class="result-message-text">
+                    Existen algunos indicadores que requieren tu atención.
+                    Con pequeños ajustes en tus hábitos y seguimiento, puedes mejorar tu estabilidad académica.
+                </p>
+                {% else %}
+                <div class="result-message-title">¡Excelente Desempeño!</div>
+                <p class="result-message-text">
+                    Tu perfil indica una gran estabilidad y compromiso.
+                    Sigue manteniendo ese buen ritmo y aprovecha las oportunidades para destacar aún más.
+                </p>
+                {% endif %}
+
+                <div class="result-actions">
+                    <a href="{% url 'questionnaire' %}" class="btn btn-next">
+                        <span style="font-size: 1.2rem; margin-right: 8px;">↺</span> Volver a intentar
+                    </a>
+
+                    {% if 'Alto' in result %}
+                    <a href="#" class="btn-secondary">Solicitar Tutoría</a>
+                    {% else %}
+                    <a href="#" class="btn-secondary">Ver Recomendaciones</a>
+                    {% endif %}
+                </div>
+
+                <div class="result-footer">
+                    ¿Tienes dudas sobre este resultado? <br>
+                    <a href="#">Contacta al Depto. de Sistemas</a>
+                </div>
+            </div>
         </div>
 
-        <p>
-            {% if 'Alto' in result %}
-            Hemos identificado varios factores que podrían dificultar tu trayectoria académica (abandono, reprobación).
-            <br><strong>Recomendación:</strong> Te sugerimos acercarte al departamento de tutorías o psicología del ITD.
-            {% elif 'Medio' in result %}
-            Existen algunos factores de atención. No descuides tu rendimiento y busca apoyo si lo necesitas.
-            {% else %}
-            ¡Excelente! Tu perfil indica estabilidad. Sigue manteniendo ese buen ritmo.
-            {% endif %}
-        </p>
+    </div> <!-- End container -->
 
-        <a href="{% url 'questionnaire' %}" class="btn btn-next"
-            style="text-decoration: none; display: inline-block; margin-top: 20px;">Volver a intentar</a>
-    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const card = document.getElementById('resultCard');
+            const riskLevel = card.getAttribute('data-risk');
+            const needle = document.getElementById('gaugeNeedle');
+
+            // Calculate Rotation
+            // CSS Transform is rotate(-90deg) initial.
+            // Range is -90deg (0%) to 90deg (100%). Total 180deg sweep.
+
+            let targetRotation = -90; // Default 0%
+
+            if (riskLevel === 'low') {
+                // ~15% position -> -90 + (180 * 0.15) = -63deg
+                targetRotation = -63;
+
+                // Trigger Confetti
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 },
+                        colors: ['#10B981', '#34D399', '#FCD34D']
+                    });
+                }, 800);
+            } else if (riskLevel === 'medium') {
+                // ~50% position -> -90 + (180 * 0.50) = 0deg (Vertical)
+                targetRotation = 0;
+            } else if (riskLevel === 'high') {
+                // ~85% position -> -90 + (180 * 0.85) = 63deg
+                targetRotation = 63;
+            }
+
+            // Apply after a brief delay for spring effect visibility
+            setTimeout(() => {
+                needle.style.transform = `translateX(-50%) rotate(${targetRotation}deg)`;
+            }, 300);
+        });
+    </script>
 </body>
 
 </html>
